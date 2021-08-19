@@ -1,0 +1,28 @@
+ <!DOCTYPE html>
+<html>
+	<head>
+		<title>Task 1</title>
+	</head>
+	<body>
+		<h2>Sum of two numbers</h2>
+		<input type="text" id="input1">
+		<input type="text" id="input2">
+		<h4><span id="result">>>> </span><h4>
+
+		<button id="action" onclick="sum()">Get</button>
+		<script type="text/javascript">
+			function sum() {
+				let n1 = document.getElementById("input1").value;
+				let n2 = document.getElementById("input2").value;
+				let rg = new RegExp("^-?[0-9]+(.[0-9]+)?$");
+				if(rg.test(n1) && rg.test(n2)) {
+					n1 = Number.parseFloat(n1);
+					n2 = Number.parseFloat(n2);
+					document.getElementById("result").innerText = ">>> " + (n1 + n2);
+				} else {
+					document.getElementById("result").innerText = ">>> characters found"; 
+				}
+			}
+		</script>
+	</body>
+</html>
