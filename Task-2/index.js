@@ -9,7 +9,6 @@ function Planets(password) {
 	this.name     = "";
 	this.year 	  = 0;
 	this.month    = 0;
-	this.tries    = 0; 
 	this.years = {
 		1  : 31,
 		2  : 28,
@@ -43,7 +42,7 @@ function Planets(password) {
 //---------------------------------------------------------------------------------------
 
 Planets.prototype.isTextEmpty = function(text) {
-	return text.trim().length === 0
+	return (text === null) ? true : text.trim().length === 0
 }
 
 //---------------------------------------------------------------------------------------
@@ -78,10 +77,11 @@ Planets.prototype.promptName = function() {
 //---------------------------------------------------------------------------------------
 
 Planets.prototype.promptPassword = function() {
-	while(this.tries !== 3) {
-		let input = this.extractNumber(prompt(`Please enter your password - ${this.tries + 1}`));
+	let tries = 0;
+	while(tries !== 3) {
+		let input = this.extractNumber(prompt(`Please enter your password - ${tries + 1}`));
 		if(input != this.password) {
-			this.tries++;
+			tries++;
 		} else return true;
 	}
 	alert("Sorry you have reached the maximum password tries");
@@ -129,7 +129,7 @@ Planets.prototype.run = function() {
 	this.getZodiac();
 }
 
-
+//---------------------------------------------------------------------------------------
 
 let p = new Planets(123);
 p.run();
