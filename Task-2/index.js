@@ -42,7 +42,8 @@ function Planets(password) {
 //---------------------------------------------------------------------------------------
 
 Planets.prototype.isTextEmpty = function(text) {
-	return (text === null) ? true : text.trim().length === 0
+	if(text === null) throw "The user ends the script";
+	return text.trim().length === 0
 }
 
 //---------------------------------------------------------------------------------------
@@ -123,10 +124,14 @@ Planets.prototype.getZodiac = function() {
 //---------------------------------------------------------------------------------------
 
 Planets.prototype.run = function() {
-	this.promptName();
-	if(!this.promptPassword()) return;
-	this.promptDay(this.promptMonth());
-	this.getZodiac();
+	try {
+		this.promptName();
+		if(!this.promptPassword()) return;
+		this.promptDay(this.promptMonth());
+		this.getZodiac();
+	} catch(e) {
+		console.log(e);
+	}
 }
 
 //---------------------------------------------------------------------------------------
