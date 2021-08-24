@@ -3,12 +3,11 @@ function Data() {  }
 //---------------------------------------------------------------------------------------
 
 /*
-	each entry consists of a key that is a string of number starts from zero,
-	and a value which will be an array of objects each one of them will represent either
-	a task or a priority as in :
-		{"task" : "this is a task"}
-		or
-		{"priority" : "high"}
+	each item consists of a key that is a string of number starts from zero,
+	and a value which will be an object with keys are :-
+		"task"
+		"priority"
+		"date"
 */
 
 Data.prototype.setItem = function(key , value) {
@@ -24,7 +23,6 @@ Data.prototype.getItem = function(key) {
 //---------------------------------------------------------------------------------------
 
 Data.prototype.removeItem = function(key) {
-	console.log(typeof key , key);
 	window.localStorage.removeItem(key);
 }
 
@@ -65,9 +63,8 @@ function UI() {
 //---------------------------------------------------------------------------------------
 
 UI.prototype.addBtn = function() {
-	let {task , priority} = this.getEntryData();
-	let nextKey = this.db.getNextKey() , data = [{"task" : task} , {"priority" : priority}];
-	console.log(nextKey);
+	let {task , priority , date} = this.getEntryData();
+	let nextKey = this.db.getNextKey() , data = {"task" : task , "priority" : priority , "date" : date};
 	if(task.trim().length !== 0) {
 		this.db.setItem(nextKey , data);
 		this.drawRow(nextKey , data);
@@ -79,24 +76,21 @@ UI.prototype.addBtn = function() {
 UI.prototype.getEntryData = function() {
 	let task = document.querySelector("#taskName").value;
 	let priority = document.querySelector("#taskPriority").value;
-	return {task , priority};
+	let date = document.querySelector("#taskDate").value;
+	return {task , priority , date};
 }
 
 //---------------------------------------------------------------------------------------
 
-UI.prototype.drawRow = function(key , item = []) {
+UI.prototype.drawRow = function(key , item) {
 	let table    = document.querySelector(".table");
 	let rowCount = table.rows.length;
 	let newRow   = table.insertRow(rowCount);
 
 	newRow.insertCell().innerHTML = key;
-	newRow.insertCell().innerHTML = item[0]["task"];
-	newRow.insertCell().innerHTML = item[1]["priority"];
-	newRow.insertCell().innerHTML = 
-	`
-		<button id="moveUp" type="button" class="btn btn-sm btn-outline-primary">\u{2191}</button>
-		<button id="moveDown" type="button" class="btn btn-sm btn-outline-primary">\u{2193}</button>
-	`;
+	newRow.insertCell().innerHTML = item["task"];
+	newRow.insertCell().innerHTML = item["priority"];
+	newRow.insertCell().innerHTML = item["date"];
 	newRow.insertCell().innerHTML = 
 	`
 		<button id="edit" type="button" class="btn btn-warning">Edit</button>
@@ -127,6 +121,7 @@ UI.prototype.drawCachedTable = function() {
 UI.prototype.addStaticControllers = function() {
 	document.querySelector("#add").addEventListener("click" , () => this.addBtn());
 	document.querySelector("#clear").addEventListener("click" , () => this.clearBtn());
+	document.querySelector("#taskDate").value = (new Date().toISOString()).slice(0, 10);
 	window.onload = () => this.drawCachedTable();
 }
 
@@ -140,28 +135,33 @@ UI.prototype.deleteBtn = function(row) {
 //---------------------------------------------------------------------------------------
 
 UI.prototype.editBtn = function(row) {
-	row.cells[4].childNodes[1].disabled = true;
+	row.cells[4].childNodes[1].disabled  = true;
 	row.cells[4].childNodes[5].className = "btn btn-success";
 	row.cells[4].childNodes[7].className = "btn";
+	let id = row.cells[0].innerHTML;
 
-	row.cells[1].innerHTML = `<input type="text" class="form-control" placeholder="${this.db.getItem(row.cells[0].innerHTML)[0]["task"]}" />`;
+	row.cells[1].innerHTML = `<input type="text" class="form-control" placeholder="${this.db.getItem(id)["task"]}" />`;
 	row.cells[2].innerHTML = 
 	`<select class="form-control">
         <option value="high">High</option>
         <option value="medium">Medium</option>
         <option value="low">Low</option>
-    </select>`
+    </select>`;
+    row.cells[2].childNodes[0].value = this.db.getItem(id)["priority"];
+    row.cells[3].innerHTML = `<input type="date" id="taskDate" class="form-control" />`;
+    row.cells[3].childNodes[0].value = this.db.getItem(id)["date"];
 }
 
 //---------------------------------------------------------------------------------------
 
 UI.prototype.saveBtn = function(row) {
-	let newTask = row.cells[1].childNodes[0].value.trim();
+	let id 			= row.cells[0].innerHTML
+	let newTask     = row.cells[1].childNodes[0].value.trim();
 	let newPriority = row.cells[2].childNodes[0].value;
-	let id = row.cells[0].innerHTML
+	let newDate     = row.cells[3].childNodes[0].value;
 
 	if(newTask) {
-		this.db.setItem(id , [{"task":newTask} , {"priority":newPriority}]);
+		this.db.setItem(id , {"task" : newTask , "priority" : newPriority , "date" : newDate});
 		this.cancelBtn(row);
 	} else {
 		let oldPlaceholder = row.cells[1].childNodes[0].placeholder;
@@ -181,8 +181,10 @@ UI.prototype.cancelBtn = function(row) {
 
 
 	let item = this.db.getItem(row.cells[0].innerHTML);
-	row.cells[1].innerHTML = item[0]["task"]; 
-	row.cells[2].innerHTML = item[1]["priority"];
+	row.cells[1].innerHTML = item["task"]; 
+	row.cells[2].innerHTML = item["priority"];
+	row.cells[3].innerHTML = item["date"];
+
 }
 
 //---------------------------------------------------------------------------------------
@@ -198,4 +200,3 @@ UI.prototype.clearBtn = function() {
 }
 
 let ui = new UI();
-// document.querySelector("#date").value = "2013-02-05";
