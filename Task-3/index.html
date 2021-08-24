@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Task - 3</title>
+		<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+	</head>
+	<body>
+		<div class="container">
+        <br />
+        <h3>Todo list application</h3><br />
+        <div class="row">
+            <div class="col-md-5">
+                <input type="text" id="taskName" class="form-control" placeholder="Task name..." />
+            </div>
+            <div class="col-md-5">
+                <select id="taskPriority" class="form-control">
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button id="add" type="button" class="btn btn-success btn-block">Add</button>
+            </div>
+        </div>
+
+        <br />
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Task ID</th>
+                    <th>Task Name</th>
+                    <th>Priority</th>
+                    <th>Sort</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tasks_tbody">
+            </tbody>
+        </table>
+        <input type="date" id="date" class="form-control"/>
+        <button id="clear" type="button" class="btn btn-danger btn-block">Clear all data</button>
+    </div>
+    <script type="text/javascript" src="./script.js"></script>
+	</body>
+</html>
