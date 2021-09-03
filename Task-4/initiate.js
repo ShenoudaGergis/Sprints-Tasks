@@ -62,6 +62,10 @@ Server.prototype.onRequest = function(ws) {
 			case "message" :
 				this.writeMessage(data);
 				break;
+
+			case "write" :
+				this.pushIsTyping(data);
+				break;
 		}
 	});
 }
@@ -97,6 +101,7 @@ Server.prototype.joinChannel = function(info) {
 
 Server.prototype.writeMessage = function(info) {
 	let sender = this.clients[info["id"]];
+	if(sender["channel"] === null) this.closeSocketConnection(info["socket"]);
 	Object.getOwnPropertyNames(this.clients).forEach((clientID) => {
 		let item = this.clients[clientID];
 		if(item["channel"] === sender["channel"]) {
@@ -108,6 +113,24 @@ Server.prototype.writeMessage = function(info) {
 			});
 		}
 	})
+}
+
+//-----------------------------------------------------------------------------
+
+Server.prototype.pushIsTyping = function(info) {
+	let sender = this.clients[info["id"]];
+	if(sender["channel"] === null) this.closeSocketConnection(info["socket"]);
+	Object.getOwnPropertyNames(this.clients).forEach((clientID) => {
+		if(clientID == info["id"]) return;
+		let item = this.clients[clientID];
+		if(item["channel"] === sender["channel"]) {
+			this.send(item["socket"] , {
+				type    : "write",
+				id      : info["id"],
+				name    : sender["name"],
+			});
+		}
+	})	
 }
 
 //-----------------------------------------------------------------------------

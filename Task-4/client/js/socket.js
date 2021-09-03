@@ -35,6 +35,15 @@ Socket.prototype.writeMessage = function(message) {
 
 //-----------------------------------------------------------------------------
 
+Socket.prototype.pushIsTyping = function(id) {
+	this.send({
+		type : "write",
+		id   : id 
+	});
+}
+
+//-----------------------------------------------------------------------------
+
 Socket.prototype.onMessage = function() {
 	this.ws.onmessage = (d) => {
 		let data = JSON.parse(d.data);
@@ -49,6 +58,7 @@ Socket.prototype.onMessage = function() {
 				if(data["status"] === "accepted") {
 					this.context.swapFaces();
 					this.context.startTimer(300);
+					this.context.sound["join"].play();					
 					console.log("connected to channel");
 				} else if(data["status"] === "refused") {
 					console.log("can't connect to channel");
@@ -60,7 +70,8 @@ Socket.prototype.onMessage = function() {
 				if(data["id"] === this.id) {
 					this.context.addRighMessage(data["message"] , data["name"]);
 				} else {
-					this.context.addLeftMessage(data["message"] , data["name"]);					
+					this.context.addLeftMessage(data["message"] , data["name"]);
+					this.context.sound["notification"].play();					
 				}
 				break;
 
@@ -68,6 +79,10 @@ Socket.prototype.onMessage = function() {
 				console.log("channel clients" , data);
 				this.context.addLiveUsersName(data["member"]);
 				this.context.addLiveUsersCount(data["member"].length , data["channel"]);
+				break;
+
+			case "write" :
+				this.context.addTypingUser(data["id"] , data["name"]);
 				break;
 		}
 	}

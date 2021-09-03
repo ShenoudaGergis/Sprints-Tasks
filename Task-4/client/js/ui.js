@@ -11,6 +11,7 @@ let Utils = {
 
 function UI() {
 	this.timeInterval = null;
+    this.typing       = {};
 	try {
 	    this.socket = new Socket();
 	    this.socket.setContext(this);
@@ -88,7 +89,7 @@ UI.prototype.sendBtn = function() {
 UI.prototype.addLeftMessage = function(message , name) {
 	document.getElementById("messagesHolder").innerHTML += `
         <div class="msg left-msg">
-            <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"></div>
+            <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>
             <div class="msg-bubble">
                 <div class="msg-info">
                     <div class="msg-info-name">${name}</div>
@@ -107,7 +108,7 @@ UI.prototype.addLeftMessage = function(message , name) {
 UI.prototype.addRighMessage = function(message , name) {
 	document.getElementById("messagesHolder").innerHTML += `
         <div class="msg right-msg">
-            <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>
+            <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"></div>
             <div class="msg-bubble">
                 <div class="msg-info">
                     <div class="msg-info-name">${name}</div>
@@ -168,7 +169,7 @@ UI.prototype.addLiveUsersCount = function(count , channel) {
 UI.prototype.startTimer = function(duration) {
     let timer = duration, minutes, seconds , display = document.getElementById("logoutSpan");
     this.timeInterval = setInterval(() => {
-    	console.log("live pulse");
+    	// console.log("live pulse");
         minutes = parseInt(timer / 60, 10);
         seconds = parseInt(timer % 60, 10);
 
@@ -198,6 +199,9 @@ UI.prototype.keyEvents = function() {
 		if(event.keyCode === 13 && event.altKey) {
 			textArea.value += "\n";
 		}
+        if(event.key.length === 1) {
+            this.socket.pushIsTyping(this.socket.id);
+        }
 	});
 	document.getElementById("joinFace").addEventListener("keydown" , (event) => {
 		if(event.keyCode === 13) {
@@ -209,6 +213,47 @@ UI.prototype.keyEvents = function() {
 
 //-----------------------------------------------------------------------------
 
+UI.prototype.addTypingUser = function(id , name) {
+    if(id in this.typing) {
+        this.typing[id]["count"]++;
+    } else {
+        this.typing[id] = {
+            count : 1,
+            name  : name
+        };
+    }
+    this.displayTyping();
+    setTimeout(() => {
+        let typing = this.typing[id];
+        if(--typing["count"] === 0) delete this.typing[id];
+        this.displayTyping();
+    } , 3000);
+}
+
+//-----------------------------------------------------------------------------
+
+UI.prototype.displayTyping = function() {
+    let names = [] , element = document.getElementById("usersTyping");
+    Object.getOwnPropertyNames(this.typing).forEach((id) => {
+        names.push(this.typing[id]["name"]);
+    });
+    switch(names.length) {
+        case 0 :
+            element.innerText = "";
+            break;
+
+        case 1 :
+            element.innerText = names[0] + " is typing";
+            break;
+
+        default :
+            element.innerText = names.join(" , ") + " are typing";
+            break;
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 UI.prototype.hookEvents = function() {
     this.joinBtn();
     this.sendBtn();
@@ -216,6 +261,12 @@ UI.prototype.hookEvents = function() {
     this.keyEvents();
 }
 
+//-----------------------------------------------------------------------------
 
-
-let ui = new UI();
+loadSounds().then((data) => {
+    let ui   = new UI();
+    ui.sound = data;
+    console.log("All assets have been loaded" , ui.sound);
+} , (error) => {
+    console.log("Error in loading assets" , error);
+})
