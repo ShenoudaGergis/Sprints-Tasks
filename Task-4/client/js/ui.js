@@ -192,20 +192,20 @@ UI.prototype.keyEvents = function() {
 	let textArea = document.getElementById("messageInput");
 	textArea.addEventListener("keydown" , (event) => {
 		if(event.keyCode === 13 && !event.altKey) {
-			console.log("textarea")
 			event.preventDefault();
 			document.getElementById("sendBtn").click();
 		}
 		if(event.keyCode === 13 && event.altKey) {
 			textArea.value += "\n";
 		}
-        if(event.key.length === 1) {
-            this.socket.pushIsTyping(this.socket.id);
-        }
 	});
+
+    textArea.addEventListener("input" , () => {
+        this.socket.pushIsTyping(this.socket.id);
+    })
+
 	document.getElementById("joinFace").addEventListener("keydown" , (event) => {
 		if(event.keyCode === 13) {
-			console.log("joinFace")
 			document.getElementById("joinBtn").click();
 		}		
 	})
